@@ -68,6 +68,8 @@ def get_available_buildings(building_list):
     available_upgraders = []
     available_processors = []
     for building in building_list.split("\n"):
+        if building.startswith("#"):
+            continue
         building = building.strip()
         if building:
             parts = building.split("-")
