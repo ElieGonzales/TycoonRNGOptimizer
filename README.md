@@ -18,7 +18,7 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
    Capitalization is important. For example:
    - **Negative Overpowered - Slime Duper** is correct
    - **OP H - Ancient Ruins** is correct
-   -**Hyperspace Electric Dropper** is incorrect
+   - **Hyperspace Electric Dropper** is incorrect
    - **negative magical tree** is incorrect
 4. run *runme.py*. Make sure you have python installed.
 5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter. *(Default value can also be set in available buildings.txt)*
