@@ -1,6 +1,6 @@
 Bonuses = ["Fire", "Wet", "Aired", "Magnetic", "Ancient", "Slimed", "Acid", "Nuclear", "Fueled", "Nebula"]
 Destroy_timers = {"Fire": 7.5, "Acid":8.0, "Nuclear":7.5}
-Rarities = {"Standard": 1, "Overpowered": 2, "Negative": 3.5, "Hyperspace": 6, "": 1}
+Rarities = {"Standard": 1, "Overpowered": 2, "Negative": 3.5, "Hyperspace": 6, "":1, "OP": 2, "N": 3.5, "H": 6}
 
 ##TODO: Instead of handling tags, vulns, and raritites as strings, handle them as ints for faster runtime
 
@@ -18,17 +18,21 @@ class Item:
         self.value = value
         self.destroy_timers = {} if destroy_timers is None else dict(destroy_timers)
     def update(self, time):
-        for effect in set(self.effects):
+        for effect in self.effects:
             if effect in self.immunities:
                 self.effects[:] = [active_effect for active_effect in self.effects if active_effect != effect]
+                print(f"Effect {effect} is in immunities, removing it from effects. New effects: {self.effects}")
                 continue
-            if effect in Destroy_timers.keys():
-                if effect not in self.destroy_timers.keys():
+            if effect in Destroy_timers:
+                if effect not in self.destroy_timers:
                     self.destroy_timers[effect] = Destroy_timers[effect] - time
                 else:
                     self.destroy_timers[effect] -= time
                 if self.destroy_timers[effect] <= 0:
                     self.value = 0
+            if effect in self.bonuses:
+                self.value *= self.bonuses[effect]
+                self.bonuses.pop(effect)
         return self
 
 
@@ -71,7 +75,7 @@ class Upgrader:
             for effect in removed_effects:
                 item.destroy_timers.pop(effect, None)
 
-        for bonus in self.bonuses.keys():
+        for bonus in self.bonuses:
             if bonus in item.effects:
                 item.value *= self.bonuses[bonus]
 
@@ -115,7 +119,7 @@ class Processor:
         item.value *= self.mult
         item.value = apply_rarities(self.rarity, item.value)
     
-        for effect in self.bonus.keys():
+        for effect in self.bonus:
             if effect in item.effects:
                 item.value *= self.bonus[effect]
         return item

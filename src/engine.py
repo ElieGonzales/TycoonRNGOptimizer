@@ -3,15 +3,10 @@ import copy
 import random
 from concurrent.futures import ProcessPoolExecutor
 try:
-    try:
-        from . import buildings, definitions
-    except ImportError:
-        import buildings
-        import definitions
-except:
+    from . import buildings, definitions
+except ImportError:
     import buildings
     import definitions
-
 process_executor = ProcessPoolExecutor()
 Timings = [2.5, 1.7, 3.1, 3.6, 2.5, 2.1, 2.5, 2.9, 3.3, 2.9, 2.5, 2.5, 2.4, 2.8, 5.2, 4.2, 1.0]
 
@@ -67,9 +62,17 @@ def get_available_buildings(building_list):
     available_droppers = []
     available_upgraders = []
     available_processors = []
+    dropper_count = 0
+    upgrader_count = 0
     for building in building_list.split("\n"):
         if building.startswith("#"):
             continue
+        if building.startswith("@"):
+            count = building.split(" ")[-1]
+            if building.startswith("@Dr"):
+                dropper_count = int(count)
+            elif building.startswith("@Up"):
+                upgrader_count = int(count)
         building = building.strip()
         if building:
             parts = building.split("-")
@@ -88,7 +91,7 @@ def get_available_buildings(building_list):
                     available_upgraders.append(building_obj)
                 elif isinstance(building_obj, buildings.Processor):
                     available_processors.append(building_obj)
-    return available_droppers, available_upgraders, available_processors
+    return available_droppers, available_upgraders, available_processors, dropper_count, upgrader_count
 
 def _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_count):
     if not processors:
@@ -239,35 +242,37 @@ Presets = {
             "population_size": 32,
             "elite_size": 4,
             "random_fraction": 0.1,
-            "progress_every": 10,
+            "progress_every": 0,
         },
         "balanced": {
             "generations": 500,
             "population_size": 64,
             "elite_size": 8,
             "random_fraction": 0.1,
-            "progress_every": 25,
+            "progress_every": 0,
         },
         "explore": {
             "generations": 500,
             "population_size": 128,
             "elite_size": 16,
             "random_fraction": 0.15,
-            "progress_every": 25,
+            "progress_every": 0,
         },
         "deep": {
             "generations": 2000,
             "population_size": 128,
             "elite_size": 16,
             "random_fraction": 0.1,
-            "progress_every": 100,
+            "progress_every": 0,
         },
     }
 
 def run(path, dropper_count, upgrader_count, preset_name):
     with open(path, "r") as f:
         building_list = f.read()
-    droppers, upgraders, processors = get_available_buildings(building_list)
+    droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
+    dropper_count = dropper_count_from_txt if dropper_count is None else dropper_count
+    upgrader_count = upgrader_count_from_txt if upgrader_count is None else upgrader_count
     preset = Presets[preset_name]
     optimized_buildings = asyncio.run(
         optimize_buildings(

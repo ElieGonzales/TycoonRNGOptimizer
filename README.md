@@ -6,6 +6,7 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 - A comprehensive and easy way to pass in available buildings
 - An estimated value
 - Handling of complex tag interactions, rarity multipliers, and more through an in-depth class system
+- Future-proof with clear syntax and buildings interactions
 
 ## Installation and use
 1. Download the source code by clicking the green **Code** button on the top right and **Download ZIP**.
@@ -16,9 +17,11 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 
    Capitalization is important. For example:
    - **Negative Overpowered - Slime Duper** is correct
-   - **negative magical tree** will not work
+   - **OP H - Ancient Ruins** is correct
+   -**Hyperspace Electric Dropper** is incorrect
+   - **negative magical tree** is incorrect
 4. run *runme.py*. Make sure you have python installed.
-5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter.
+5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter. *(Default value can also be set in available buildings.txt)*
 6. Wait for the program to finish.
 7. The last line will be the best found buildings and the estimated value produced. It will also be saved to *optimized_buildings.txt*.
 8. Done!

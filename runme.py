@@ -11,22 +11,15 @@ def main():
     if preset_name == "":
         preset_name = "balanced"
 
-    dropper_count = input("Enter the number of droppers to use (default 10): ")
-    if dropper_count == "":
-        dropper_count = 10
-    else:
-        dropper_count = int(dropper_count)
+    dropper_count = int(input("Enter the number of droppers to use (default 10): "))
 
-    upgrader_count = input("Enter the number of upgraders to use (default 17): ")
-    if upgrader_count == "":
-        upgrader_count = 17
-    else:
-        upgrader_count = int(upgrader_count)
+    upgrader_count = int(input("Enter the number of upgraders to use (default 17): "))
+    print("Calculating...")
 
     result = run(path, dropper_count, upgrader_count, preset_name)
     print("Optimized buildings:", result)
     with open("optimized_buildings.txt", "w") as f:
-        f.write(result)
+        f.write(str(result))
     input("Press Enter to exit...")
 
 
