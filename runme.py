@@ -1,5 +1,4 @@
 import multiprocessing
-
 from src.engine import run
 
 
@@ -26,6 +25,9 @@ def main():
 
     result = run(path, dropper_count, upgrader_count, preset_name)
     print("Optimized buildings:", result)
+    with open("optimized_buildings.txt", "w") as f:
+        f.write(result)
+    input("Press Enter to exit...")
 
 
 if __name__ == "__main__":

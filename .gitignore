@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+optimized_buildings.txt
 
 # Virtual environments
 .venv
