@@ -236,59 +236,44 @@ async def optimize_buildings(
 
     return _describe(best_candidate, best_value)
 
-Presets = {
-        "quick": {
-            "generations": 100,
-            "population_size": 32,
-            "elite_size": 4,
-            "random_fraction": 0.1,
-            "progress_every": 0,
-        },
-        "balanced": {
-            "generations": 500,
-            "population_size": 64,
-            "elite_size": 8,
-            "random_fraction": 0.1,
-            "progress_every": 0,
-        },
-        "explore": {
-            "generations": 500,
-            "population_size": 128,
-            "elite_size": 16,
-            "random_fraction": 0.15,
-            "progress_every": 0,
-        },
-        "deep": {
-            "generations": 2000,
-            "population_size": 128,
-            "elite_size": 16,
-            "random_fraction": 0.1,
-            "progress_every": 0,
-        },
-    }
-
-def run(path, dropper_count, upgrader_count, preset_name):
+def run(path, dropper_count, upgrader_count, runs=1):
     with open(path, "r") as f:
         building_list = f.read()
     droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
-    dropper_count = dropper_count_from_txt if dropper_count is None else dropper_count
-    upgrader_count = upgrader_count_from_txt if upgrader_count is None else upgrader_count
-    preset = Presets[preset_name]
-    optimized_buildings = asyncio.run(
-        optimize_buildings(
-            droppers,
-            upgraders,
-            processors,
-            dropper_count=dropper_count,
-            upgrader_count=upgrader_count,
-            **preset,
+    if not droppers or not upgraders or not processors:
+        raise ValueError(
+            "available buildings must contain at least one dropper, upgrader, and processor"
         )
-    )
-    return optimized_buildings
+    dropper_count = dropper_count_from_txt if dropper_count == 0 else int(dropper_count)
+    upgrader_count = upgrader_count_from_txt if upgrader_count == 0 else int(upgrader_count)
+    if runs < 1:
+        raise ValueError("runs must be positive")
+
+    best_result = None
+    for run_number in range(1, runs + 1):
+        result = asyncio.run(
+            optimize_buildings(
+                droppers,
+                upgraders,
+                processors,
+                dropper_count=dropper_count,
+                upgrader_count=upgrader_count,
+                generations=150,
+                population_size=64,
+                elite_size=8,
+                random_fraction=0.1,
+                progress_every=0,
+            )
+        )
+        if best_result is None or result["value"] > best_result["value"]:
+            best_result = result
+        print(f"Run {run_number}/{runs}: {result['value']}")
+
+    return best_result
 
 if __name__ == "__main__":
     AVAILABLE_BUILDINGS_PATH = "available_buildings.txt"
     DROPPER_COUNT = 10
     UPGRADER_COUNT = 17
-    ACTIVE_PRESET = "explore"  # Change this to "quick", "balanced", "explore", or "deep" to use different presets
-    print(run(AVAILABLE_BUILDINGS_PATH, DROPPER_COUNT, UPGRADER_COUNT, ACTIVE_PRESET))
+    RUNS = 1
+    print(run(AVAILABLE_BUILDINGS_PATH, DROPPER_COUNT, UPGRADER_COUNT, RUNS))

@@ -7,16 +7,24 @@ def main():
     if path == "":
         path = "available_buildings.txt"
 
-    preset_name = input("Enter the optimization preset name (quick, balanced, deep, explore): ")
-    if preset_name == "":
-        preset_name = "balanced"
+    runs = input("Enter the number of runs (default 1): ")
+    runs = 1 if runs == "" else int(runs)
 
-    dropper_count = int(input("Enter the number of droppers to use (default 10): "))
+    dropper_count = input("Enter the number of droppers (default from file): ")
+    if dropper_count == "":
+        dropper_count = 0
+    else:
+        dropper_count = int(dropper_count)
 
-    upgrader_count = int(input("Enter the number of upgraders to use (default 17): "))
+    upgrader_count = input("Enter the number of upgraders (default from file): ")
+    if upgrader_count == "":
+        upgrader_count = 0
+    else:
+        upgrader_count = int(upgrader_count)
+
     print("Calculating...")
 
-    result = run(path, dropper_count, upgrader_count, preset_name)
+    result = run(path, dropper_count, upgrader_count, runs)
     print("Optimized buildings:", result)
     with open("optimized_buildings.txt", "w") as f:
         f.write(str(result))
