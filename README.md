@@ -11,7 +11,7 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 ## Installation and use
 1. Download the source code by clicking the green **Code** button on the top right and **Download ZIP**.
 2. Unzip the file.
-3. Write your available buildings in available_buildings.txt or another text file in the same repository using the following syntax:
+3. Write your available buildings in available_buildings.txt or another text file in the same directory using the following syntax:
 
    **RARITY1 RARITY2 RARITY3 - BUILDING NAME**
 
@@ -54,3 +54,26 @@ Make sure you have Python 3.14 installed. you can find it [here.](https://www.py
 
 </details>
 
+<details>
+<summary><b>&lt;Building&gt; isn't recognized!</b></summary>
+<br>
+
+The building might've been added in a recent update. You can notify me on the TR:R Discord or DM me: **@Elie07**
+
+</details>
+
+<details>
+<summary><b>The factory found is worse than the one I have right now!</b></summary>
+<br>
+
+The algorithm isn't perfect, and is by definition not very intelligent. It's basically a better trial-and-error. I'm working on upgrading the algorithm to be more performant. 
+
+</details>
+
+<details>
+<summary><b>I built the recommended factory, but it doesn't perform the same!</b></summary>
+<br>
+
+I'm not affiliated with the TR:R developement team and have no way to check if my calculations are accurate. If you run into this issue, please send me your available buildings, the setup the algorithm gave you and what you're getting in game via discord: **Elie07**
+
+</details>
