@@ -74,6 +74,6 @@ The algorithm isn't perfect, and is by definition not very intelligent. It's bas
 <summary><b>I built the recommended factory, but it doesn't perform the same!</b></summary>
 <br>
 
-I'm not affiliated with the TR:R developement team and have no way to check if my calculations are accurate. If you run into this issue, please send me your available buildings, the setup the algorithm gave you and what you're getting in game via discord: **Elie07**
+I'm not affiliated with the TR:R developement team and have no way to check if my calculations are accurate. If you run into this issue, please send me your available buildings, the setup the algorithm gave you and what you're getting in game via discord: **@Elie07**
 
 </details>
