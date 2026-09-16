@@ -1,5 +1,6 @@
 import asyncio
 import copy
+import os
 import random
 from concurrent.futures import ProcessPoolExecutor
 try:
@@ -7,29 +8,25 @@ try:
 except ImportError:
     import buildings
     import definitions
-process_executor = ProcessPoolExecutor()
-Timings = [2.5, 1.7, 3.1, 3.6, 2.5, 2.1, 2.5, 2.9, 3.3, 2.9, 2.5, 2.5, 2.4, 2.8, 5.2, 4.2, 1.0]
 
+#Gets the time between upgraders for destruction effects
 def get_timings(upgrader_count):
+    timings = [2.5, 1.7, 3.1, 3.6, 2.5, 2.1, 2.5, 2.9, 3.3, 2.9, 2.5, 2.5, 2.4, 2.8, 5.2, 4.2, 1.0]
     if upgrader_count <= 0:
         return []
-    if upgrader_count > len(Timings):
-        raise ValueError(
-            f"{upgrader_count} upgraders require at least {upgrader_count} timing values; "
-            f"only {len(Timings)} are configured"
-        )
-    return Timings[-upgrader_count:]
+    return timings[-upgrader_count:]
 
-def calculate(droppers, upgraders, processor):
+#Evaluates the estimated revenue/sec of a given layout
+def calculate_factory(droppers, upgraders, processor):
     time_table = get_timings(len(upgraders))
     final_value = 0
     
     for dropper in droppers:
         item = dropper.drop()
         
-        for index, upgrader in enumerate(upgraders):
+        for step, upgrader in enumerate(upgraders):
             item = upgrader.upgrade(item)
-            item = item.update(time_table[index])
+            item = item.update(time_table[step])
             if item is None or item.value <= 0:
                 break
                 
@@ -39,7 +36,7 @@ def calculate(droppers, upgraders, processor):
             
     return final_value
 
-
+#Returns the building object based on the name of the building
 def get_building_by_name(name):
     for dropper in definitions.Droppers:
         if dropper.name == name:
@@ -52,9 +49,7 @@ def get_building_by_name(name):
             return processor
     return None
 
-def set_rarity(building, rarity):
-    building.rarity = rarity
-
+#Gets buildings from raw text
 def get_available_buildings(building_list):
     #Words before - are the rarities
     #Words after - is the building name
@@ -84,7 +79,7 @@ def get_available_buildings(building_list):
             building_obj = get_building_by_name(name)
             if building_obj:
                 building_obj = copy.deepcopy(building_obj)
-                set_rarity(building_obj, rarity)    
+                building_obj.rarity = rarity  
                 if isinstance(building_obj, buildings.Dropper):
                     available_droppers.append(building_obj)
                 elif isinstance(building_obj, buildings.Upgrader):
@@ -92,6 +87,9 @@ def get_available_buildings(building_list):
                 elif isinstance(building_obj, buildings.Processor):
                     available_processors.append(building_obj)
     return available_droppers, available_upgraders, available_processors, dropper_count, upgrader_count
+
+
+#---GENETIC ALGORITHM---
 
 def _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_count):
     if not processors:
@@ -103,15 +101,12 @@ def _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_c
         random.choice(processors),
     )
 
-
 def _evaluate(candidate):
-    """
-    Evaluates a layout candidate. 
-    Deepcopy has been removed entirely to achieve massive speedups.
-    """
     droppers, upgraders, processor = candidate
-    return calculate(droppers, upgraders, processor)
+    return calculate_factory(droppers, upgraders, processor)
 
+def _evaluate_batch(candidates):
+    return [_evaluate(candidate) for candidate in candidates]
 
 def _mutate(candidate, droppers, upgraders, processors):
     selected_droppers, selected_upgraders, processor = candidate
@@ -120,14 +115,21 @@ def _mutate(candidate, droppers, upgraders, processors):
 
     if selected_droppers and random.random() < 0.35:
         index = random.randrange(len(selected_droppers))
-        # Optimized list parsing: compare identities directly using 'is not'
-        available = [d for d in droppers if d not in selected_droppers or d is selected_droppers[index]]
+        available = [
+            dropper
+            for dropper in droppers
+            if dropper not in selected_droppers or dropper is selected_droppers[index]
+        ]
         if available:
             selected_droppers[index] = random.choice(available)
             
     if selected_upgraders and random.random() < 0.35:
         index = random.randrange(len(selected_upgraders))
-        available = [u for u in upgraders if u not in selected_upgraders or u is selected_upgraders[index]]
+        available = [
+            upgrader
+            for upgrader in upgraders
+            if upgrader not in selected_upgraders or upgrader is selected_upgraders[index]
+        ]
         if available:
             selected_upgraders[index] = random.choice(available)
             
@@ -141,10 +143,16 @@ def _mutate(candidate, droppers, upgraders, processors):
     return tuple(selected_droppers), tuple(selected_upgraders), processor
 
 def _describe(candidate, value):
-    droppers, upgraders, processor = candidate
+    selected_droppers, selected_upgraders, processor = candidate
     return {
-        "droppers": [f"{dropper.rarity} {dropper.name}" for dropper in droppers],
-        "upgraders": [f"{upgrader.rarity} {upgrader.name}" for upgrader in upgraders],
+        "droppers": [
+            f"{dropper.rarity} {dropper.name}"
+            for dropper in selected_droppers
+        ],
+        "upgraders": [
+            f"{upgrader.rarity} {upgrader.name}"
+            for upgrader in selected_upgraders
+        ],
         "processor": f"{processor.rarity} {processor.name}",
         "value": value,
     }
@@ -188,55 +196,77 @@ async def optimize_buildings(
     best_value = float("-inf")
     stagnant_generations = 0
     immigrant_fraction = random_fraction
+    score_cache = {}
 
     loop = asyncio.get_running_loop()
-
-    for generation in range(1, generations + 1):
-        # Using loop.run_in_executor alongside ProcessPoolExecutor 
-        # successfully offloads tasks across all available CPU cores.
-        tasks = [
-            loop.run_in_executor(process_executor, _evaluate, candidate) 
-            for candidate in population
-        ]
-        scores = await asyncio.gather(*tasks)
-        
-        ranked = sorted(zip(scores, population), key=lambda result: result[0], reverse=True)
-        if ranked[0][0] > best_value:
-            best_value, best_candidate = ranked[0]
-            stagnant_generations = 0
-            immigrant_fraction = random_fraction
-        else:
-            stagnant_generations += 1
-            if stagnant_generations >= stagnation_patience:
-                immigrant_fraction = min(max_random_fraction, immigrant_fraction + 0.1)
-
-        if progress_every and (generation % progress_every == 0 or generation == 1):
-            print(
-                f"Generation {generation}: best value = {best_value} "
-                f"(immigrants: {immigrant_fraction:.0%})"
-            )
-            print(_describe(best_candidate, best_value))
-            
-        if target_value is not None and best_value >= target_value:
-            break
-
-        elites = [candidate for _, candidate in ranked[:max(1, elite_size)]]
-        population = elites[:]
-        
-        while len(population) < population_size:
-            if random.random() < immigrant_fraction:
-                population.append(
-                    _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_count)
+    with ProcessPoolExecutor() as process_executor:
+        for generation in range(1, generations + 1):
+            uncached_candidates = list(dict.fromkeys(population))
+            uncached_candidates = [
+                candidate for candidate in uncached_candidates
+                if candidate not in score_cache
+            ]
+            if uncached_candidates:
+                worker_count = min(len(uncached_candidates), os.cpu_count() or 1)
+                chunk_size = max(
+                    1,
+                    (len(uncached_candidates) + worker_count * 2 - 1) // (worker_count * 2),
                 )
+                candidate_batches = [
+                    uncached_candidates[start:start + chunk_size]
+                    for start in range(0, len(uncached_candidates), chunk_size)
+                ]
+                tasks = [
+                    loop.run_in_executor(process_executor, _evaluate_batch, batch)
+                    for batch in candidate_batches
+                ]
+                score_batches = await asyncio.gather(*tasks)
+                uncached_scores = [score for batch in score_batches for score in batch]
+                score_cache.update(zip(uncached_candidates, uncached_scores))
+
+            scores = [score_cache[candidate] for candidate in population]
+        
+            ranked = sorted(zip(scores, population), key=lambda result: result[0], reverse=True)
+            if ranked[0][0] > best_value:
+                best_value, best_candidate = ranked[0]
+                stagnant_generations = 0
+                immigrant_fraction = random_fraction
             else:
-                parent = random.choice(elites)
-                population.append(_mutate(parent, droppers, upgraders, processors))
+                stagnant_generations += 1
+                if stagnant_generations >= stagnation_patience:
+                    immigrant_fraction = min(max_random_fraction, immigrant_fraction + 0.1)
+
+            if progress_every and (generation % progress_every == 0 or generation == 1):
+                print(
+                    f"Generation {generation}: best value = {best_value} "
+                    f"(immigrants: {immigrant_fraction:.0%})"
+                )
+                print(_describe(best_candidate, best_value))
+            
+            if target_value is not None and best_value >= target_value:
+                break
+
+            elites = [candidate for _, candidate in ranked[:max(1, elite_size)]]
+            population = elites[:]
+        
+            while len(population) < population_size:
+                if random.random() < immigrant_fraction:
+                    population.append(
+                        _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_count)
+                    )
+                else:
+                    parent = random.choice(elites)
+                    population.append(_mutate(parent, droppers, upgraders, processors))
                 
-        await asyncio.sleep(0)
+            await asyncio.sleep(0)
 
     return _describe(best_candidate, best_value)
 
-def run(path, dropper_count, upgrader_count, runs=1):
+#----------//-----------
+
+
+#Runs the optimization process with the given parameters and returns the best result
+def run(path, dropper_count, upgrader_count, runs=1, run_stagnation_patience=8):
     with open(path, "r") as f:
         building_list = f.read()
     droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
@@ -246,10 +276,13 @@ def run(path, dropper_count, upgrader_count, runs=1):
         )
     dropper_count = dropper_count_from_txt if dropper_count == 0 else int(dropper_count)
     upgrader_count = upgrader_count_from_txt if upgrader_count == 0 else int(upgrader_count)
-    if runs < 1:
-        raise ValueError("runs must be positive")
+
+    runs = abs(int(runs))
+    if run_stagnation_patience < 1:
+        raise ValueError("run_stagnation_patience must be positive")
 
     best_result = None
+    stagnant_runs = 0
     for run_number in range(1, runs + 1):
         result = asyncio.run(
             optimize_buildings(
@@ -267,13 +300,19 @@ def run(path, dropper_count, upgrader_count, runs=1):
         )
         if best_result is None or result["value"] > best_result["value"]:
             best_result = result
+            stagnant_runs = 0
+        else:
+            stagnant_runs += 1
         print(f"Run {run_number}/{runs}: {result['value']}")
+        if stagnant_runs >= run_stagnation_patience:
+            print(f"Stopping after {stagnant_runs} runs without improvement.")
+            break
 
     return best_result
 
 if __name__ == "__main__":
     AVAILABLE_BUILDINGS_PATH = "available_buildings.txt"
-    DROPPER_COUNT = 10
-    UPGRADER_COUNT = 17
-    RUNS = 1
+    DROPPER_COUNT = 5
+    UPGRADER_COUNT = 7
+    RUNS = 20
     print(run(AVAILABLE_BUILDINGS_PATH, DROPPER_COUNT, UPGRADER_COUNT, RUNS))

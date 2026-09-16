@@ -9,3 +9,6 @@ optimized_buildings.txt
 
 # Virtual environments
 .venv
+
+#I'm on MacOS
+.DS_Store
