@@ -8,8 +8,9 @@ def main():
     if path == "":
         path = "available_buildings.txt"
 
-    runs = input("Enter the number of runs (default 1): ")
-    runs = 1 if runs == "" else int(runs)
+
+    runs = input("Enter the number of runs (default 10): ")
+    runs = 10 if runs == "" else int(runs)
 
     dropper_count = input("Enter the number of droppers (default from file): ")
     if dropper_count == "":

@@ -9,9 +9,17 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 - Future-proof with clear syntax and buildings interactions. Adding a building is done with a single line!
 
 ## Installation and use
+You can install this project as a PyPi package: 
+ ```python3 -m pip install rngoptimizer```
+
+Open your terminal in a directory with a text file containing your buildings as directed below.
+You can then pass in the flags `-p <path>` for the path to your text file if it isn't `available_buildings.txt`, `-d` for the dropper amount, `-u` for the upgrader amount and `-r` for the number of runs.
+
+
+
 1. Download the source code by clicking the green **Code** button on the top right and **Download ZIP**.
 2. Unzip the file.
-3. Write your available buildings in available_buildings.txt or another text file in the same directory using the following syntax:
+3. Write your available buildings in `available_buildings.txt` or another text file in the same directory using the following syntax:
 
    **RARITY1 RARITY2 RARITY3 - BUILDING NAME**
 
@@ -23,10 +31,10 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 
    Comments can be written if the line starts with #.
    You can set a custom default dropper and upgrader count by typing @Dropper amount: x and @Upgrader amount: y at the start of the file.
-4. run *runme.py*. Make sure you have python installed.
-5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter. *(Default value can also be set in available buildings.txt)*
+4. run `runme.py`. Make sure you have python installed.
+5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter. *(Default value can also be set in `available_buildings.txt`)*
 6. Wait for the program to finish.
-7. The last line will be the best found buildings and the estimated value produced. It will also be saved to *optimized_buildings.txt*.
+7. The last line will be the best found buildings and the estimated value produced. It will also be saved to `optimized_buildings.txt`.
 8. Done!
 
 ## Frequently Asked Questions

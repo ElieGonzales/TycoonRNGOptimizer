@@ -13,8 +13,7 @@ def main_cli():
     args = parser.parse_args()
     if args.path == "":
         args.path = "available_buildings.txt"
-    if args.runs < 1:
-        args.runs = 1
+    args.runs = abs(args.runs)
     args.droppers = abs(args.droppers)
     args.upgraders = abs(args.upgraders)
 

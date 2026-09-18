@@ -264,7 +264,7 @@ async def optimize_buildings(
 
 
 #Runs the optimization process with the given parameters and returns the best result
-def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=8):
+def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10):
     with open(path, "r") as f:
         building_list = f.read()
     droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
