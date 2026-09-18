@@ -3,11 +3,9 @@ import copy
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
-try:
-    from . import buildings, definitions
-except ImportError:
-    import buildings
-    import definitions
+
+from . import buildings
+from . import definitions
 
 #Gets the time between upgraders for destruction effects
 def get_timings(upgrader_count):
