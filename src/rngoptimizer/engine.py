@@ -55,8 +55,8 @@ def get_available_buildings(building_list):
     available_droppers = []
     available_upgraders = []
     available_processors = []
-    dropper_count = 0
-    upgrader_count = 0
+    dropper_count = 10
+    upgrader_count = 17
     for building in building_list.split("\n"):
         if building.startswith("#"):
             continue

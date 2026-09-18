@@ -20,6 +20,9 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
    - **OP H - Ancient Ruins** is correct
    - **Hyperspace Electric Dropper** is incorrect
    - **negative magical tree** is incorrect
+
+   Comments can be written if the line starts with #.
+   You can set a custom default dropper and upgrader count by typing @Dropper amount: x and @Upgrader amount: y at the start of the file.
 4. run *runme.py*. Make sure you have python installed.
 5. When prompted, enter the number of droppers slots you have on your base, the number of upgraders, and the preset. To use the default value, press enter. *(Default value can also be set in available buildings.txt)*
 6. Wait for the program to finish.
