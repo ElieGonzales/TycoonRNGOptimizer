@@ -15,21 +15,23 @@ def get_timings(upgrader_count):
     return timings[-upgrader_count:]
 
 #Evaluates the estimated revenue/sec of a given layout
-def calculate_factory(droppers, upgraders, processor):
+def calculate_factory(droppers, upgraders, processor, verbose=False):
     time_table = get_timings(len(upgraders))
     final_value = 0
     
     for dropper in droppers:
-        item = dropper.drop()
+        item = dropper.drop(verbose=verbose)
         
         for step, upgrader in enumerate(upgraders):
             item = upgrader.upgrade(item)
-            item = item.update(time_table[step])
+            item = item.update(time_table[step], verbose=verbose)
             if item is None or item.value <= 0:
+                if verbose:
+                    print(f"Item destroyed after {step + 1} upgraders.")
                 break
                 
         if item is not None and item.value > 0:
-            item = processor.process(item)
+            item = processor.process(item, verbose=verbose)
             final_value += item.value
             
     return final_value
@@ -84,6 +86,8 @@ def get_available_buildings(building_list):
                     available_upgraders.append(building_obj)
                 elif isinstance(building_obj, buildings.Processor):
                     available_processors.append(building_obj)
+            elif not building.startswith("@"):
+                print(f"Warning: Building '{name}' not found in definitions.")
     return available_droppers, available_upgraders, available_processors, dropper_count, upgrader_count
 
 
@@ -258,13 +262,13 @@ async def optimize_buildings(
                 
             await asyncio.sleep(0)
 
-    return _describe(best_candidate, best_value)
+    return best_candidate, best_value
 
 #----------//-----------
 
 
 #Runs the optimization process with the given parameters and returns the best result
-def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10):
+def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10, verify_final_run=True):
     with open(path, "r") as f:
         building_list = f.read()
     droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
@@ -282,7 +286,7 @@ def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10
     best_result = None
     stagnant_runs = 0
     for run_number in range(1, runs + 1):
-        result = asyncio.run(
+        best_candidate, value = asyncio.run(
             optimize_buildings(
                 droppers,
                 upgraders,
@@ -296,17 +300,20 @@ def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10
                 progress_every=0,
             )
         )
-        if best_result is None or result["value"] > best_result["value"]:
-            best_result = result
+        if best_result is None or value > best_result["value"]:
+            best_result = {"candidate": best_candidate, "value": value}
             stagnant_runs = 0
         else:
             stagnant_runs += 1
-        print(f"Run {run_number}/{runs}: {result['value']}")
+        print(f"Run {run_number}/{runs}: {value} (best: {best_result['value']})")
         if stagnant_runs >= run_stagnation_patience:
             print(f"Stopping after {stagnant_runs} runs without improvement.")
             break
 
-    return best_result
+    if verify_final_run:
+        print('Verifying final run...')
+        calculate_factory(*best_result["candidate"], verbose=True)
+    return _describe(best_result["candidate"], best_result["value"])
 
 if __name__ == "__main__":
     AVAILABLE_BUILDINGS_PATH = "available_buildings.txt"

@@ -20,11 +20,23 @@ class Item:
         self.destroy_timers = {} if destroy_timers is None else dict(destroy_timers)
 
     #In between machines: removes effects it's immune to (fallback), applies destroy timers, and applies native bonuses (from the dropper)
-    def update(self, time):
+    def update(self, time, verbose=False):
         for effect in self.effects:
+            #Tag interactions:
+            if effect == "Wet" and "Fire" in self.effects:
+                self.effects.remove("Fire")
+            if effect == "Ice" and "Fire" in self.effects:
+                self.effects.remove("Fire")
+                self.effects.append("Wet")
+            
+
+
+            #Remove effects that the item is immune to
             if effect in self.immunities:
                 self.effects[:] = [active_effect for active_effect in self.effects if active_effect != effect]
                 continue
+
+            #Count down destroying effects and destroy the item if the timer reaches 0
             if effect in Destroy_timers:
                 if effect not in self.destroy_timers:
                     self.destroy_timers[effect] = Destroy_timers[effect] - time
@@ -32,9 +44,17 @@ class Item:
                     self.destroy_timers[effect] -= time
                 if self.destroy_timers[effect] <= 0:
                     self.value = 0
-            if effect in self.bonuses:
-                self.value *= self.bonuses[effect]
-                self.bonuses.pop(effect)
+                    if verbose:
+                        print(f"Item destroyed due to {effect} effect.")
+
+            #Destroy the item if it has a vulnerability to an effect it has
+            if effect in self.vulnerabilities:
+                self.value = 0
+                if verbose:
+                    print(f"Item destroyed due to {effect} vulnerability.")
+            
+
+            
         return self
 
 
@@ -48,7 +68,10 @@ class Dropper:
         self.immunities = [] if immunities is None else immunities
 
     #Returns an Item object with the dropper's bonuses, vulnerabilities, immunities, and value (efficiency * rarity multiplier)
-    def drop(self):
+    def drop(self, verbose=False):
+        if verbose and self.vulnerabilities:
+            print(f"Warning: Dropper {self.name} has vulnerabilities: {self.vulnerabilities}")
+            
         value = apply_rarities(self.rarity, self.efficiency)
         return Item(self.bonus, [], self.vulnerabilities, self.immunities, value)
 
@@ -69,6 +92,9 @@ class Upgrader:
         item.value *= self.mult
         item.value = apply_rarities(self.rarity, item.value)
 
+        #get a modifiable copy of the bonuses to avoid repeat applications
+        i_bonuses = dict(item.bonuses)
+
 
         #Remove all effects from effect_remove
         if "All" in self.effect_remove:
@@ -87,22 +113,33 @@ class Upgrader:
             if bonus in item.effects:
                 item.value *= self.bonuses[bonus]
 
+
         #Add effects from effect_add to the item, and add vulnerabilities if the effect starts with "V-"
         for effect in self.effect_add:
             if effect.startswith("V-"):
                 item.vulnerabilities.append(effect[2:])
             else:
                 item.effects.append(effect)
+                if effect in i_bonuses:
+                    item.value *= i_bonuses[effect]
+                    i_bonuses.pop(effect, None)  # Remove the bonus after applying it to avoid double application
+
 
         #Add conditional effects based on the item's current effects (1 per effect)
-        for effect, additions in self.cond_effect_add.items():
+        for effect, addition in self.cond_effect_add.items():
             for _ in range(item.effects.count(effect)):
-                item.effects.extend(additions)
+                item.effects.extend([addition])
+                if addition in i_bonuses:
+                    item.value *= i_bonuses[addition]
+                    i_bonuses.pop(addition, None)  # Remove the bonus after applying it to avoid double application
 
         #Transform effects based on trans_effect mapping (1 per effect)
         for index, effect in enumerate(item.effects):
             if effect in self.trans_effect:
                 item.effects[index] = self.trans_effect[effect]
+                if self.trans_effect[effect] in i_bonuses:
+                    item.value *= i_bonuses[self.trans_effect[effect]]
+                    i_bonuses.pop(self.trans_effect[effect], None)  # Remove the bonus after applying it to avoid double application
 
         #Multiply the item's value by (1 - destroy_chance) to simulate the chance of destruction
         if self.destroy_chance > 0:
@@ -119,15 +156,19 @@ class Processor:
         self.onlyaccept = onlyaccept
         self.refuse = refuse
 
-    def process(self, item):
+    def process(self, item, verbose=False):
 
         #If the processor has onlyaccept effects and the item does not have any of those effects, set the item's value to 0
         if self.onlyaccept and not any(effect in item.effects for effect in self.onlyaccept):
             item.value = 0
+            if verbose:
+                print(f"Processor {self.name} refused item.")
 
         #If the processor has refuse effects and the item has any of those effects, set the item's value to 0
         if any(effect in item.effects for effect in self.refuse):
             item.value = 0
+            if verbose:
+                print(f"Processor {self.name} refused item because it was {effect}.")
 
         #Multiply the item's value by the processor's multiplier and apply rarity multiplier
         item.value *= self.mult
