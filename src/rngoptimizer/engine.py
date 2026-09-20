@@ -5,6 +5,16 @@ import random
 from concurrent.futures import ProcessPoolExecutor
 from . import buildings
 from . import definitions
+import sys
+import traceback
+
+#allows to see the traceback of an exception before the program exits
+def show_exception_and_exit(exc_type, exc_value, tb):
+    traceback.print_exception(exc_type, exc_value, tb)
+    input("\nPress Enter to exit...")
+    sys.exit(-1)
+
+sys.excepthook = show_exception_and_exit
 
 
 #Gets the time between upgraders for destruction effects

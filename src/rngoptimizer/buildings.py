@@ -5,8 +5,14 @@ Rarities = {"Standard": 1, "Overpowered": 2, "Negative": 3.5, "Hyperspace": 6, "
 ##TODO: Instead of handling tags, vulns, and raritites as strings, handle them as ints for faster runtime
 
 def apply_rarities(rarities, value):
-    for rarity in rarities.split(" "):
-        value *= Rarities[rarity]
+    for rarity in rarities.split():
+        try:
+            value *= Rarities[rarity]
+        except KeyError:
+            supported = ", ".join(Rarities)
+            raise ValueError(
+                f"Unknown rarity '{rarity}'. Supported rarities: {supported}"
+            ) from None
     return value
 
 

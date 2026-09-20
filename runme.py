@@ -27,7 +27,16 @@ def main():
     result = run(path, dropper_count, upgrader_count, runs, verify_final_run=False)
     print("Optimized buildings:", result)
     with open("optimized_buildings.txt", "w") as f:
-        f.write(str(result))
+        for category, buildings in result.items():
+            f.write(f"{category}:\n")
+            if category == "value":
+                f.write(f"  {buildings}\n")
+                continue
+            if category == "processor":
+                f.write(f"  {buildings}\n")
+                continue
+            for building in buildings:
+                f.write(f"  {building}\n")
     input("Press Enter to exit...")
 
 if __name__ == "__main__":
