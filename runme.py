@@ -1,7 +1,5 @@
 import multiprocessing
-from src.rngoptimizer.engine import run
-import argparse
-
+from src.rngoptimizer.engine import *
 
 def main():
     path = input("Enter the path to your available buildings file (defaults to available_buildings.txt): ")
@@ -26,7 +24,7 @@ def main():
 
     print("Calculating...")
 
-    result = run(path, dropper_count, upgrader_count, runs, verify_final_run=True)
+    result = run(path, dropper_count, upgrader_count, runs, verify_final_run=False)
     print("Optimized buildings:", result)
     with open("optimized_buildings.txt", "w") as f:
         f.write(str(result))

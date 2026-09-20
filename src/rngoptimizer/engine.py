@@ -3,9 +3,9 @@ import copy
 import os
 import random
 from concurrent.futures import ProcessPoolExecutor
-
 from . import buildings
 from . import definitions
+
 
 #Gets the time between upgraders for destruction effects
 def get_timings(upgrader_count):
@@ -15,25 +15,29 @@ def get_timings(upgrader_count):
     return timings[-upgrader_count:]
 
 #Evaluates the estimated revenue/sec of a given layout
-def calculate_factory(droppers, upgraders, processor, verbose=False):
+def calculate_factory(droppers, upgraders, processor, verbose=False, super_verbose=False):
     time_table = get_timings(len(upgraders))
     final_value = 0
+    if super_verbose:
+        verbose = True
     
     for dropper in droppers:
-        item = dropper.drop(verbose=verbose)
+        item = dropper.drop(verbose=verbose, super_verbose=super_verbose)
         
         for step, upgrader in enumerate(upgraders):
-            item = upgrader.upgrade(item)
-            item = item.update(time_table[step], verbose=verbose)
+            item = upgrader.upgrade(item, super_verbose=super_verbose)
+            item = item.update(time_table[step], verbose=verbose, super_verbose=super_verbose)
             if item is None or item.value <= 0:
                 if verbose:
                     print(f"Item destroyed after {step + 1} upgraders.")
                 break
                 
         if item is not None and item.value > 0:
-            item = processor.process(item, verbose=verbose)
+            item = processor.process(item, verbose=verbose, super_verbose=super_verbose)
             final_value += item.value
-            
+    if super_verbose:
+        print(f"Final value: {final_value}")
+        print(f"Last item effects: {item.effects if item is not None else 'N/A'}")
     return final_value
 
 #Returns the building object based on the name of the building
