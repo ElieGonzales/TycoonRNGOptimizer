@@ -26,7 +26,7 @@ sys.excepthook = show_exception_and_exit
 
 #Gets the time between upgraders for destruction effects
 def get_timings(upgrader_count):
-    timings = [2.5, 1.7, 3.1, 3.6, 2.5, 2.1, 2.5, 2.9, 3.3, 2.9, 2.5, 2.5, 2.4, 2.8, 5.2, 4.2, 1.0]
+    timings = [2.0, 1.4, 2.7, 3.1, 2.5, 2.4, 2.4, 2.9, 2.9, 2.9, 2.5, 1.7, 2.7, 2.5, 5.1, 4.4, 1.3]
     if upgrader_count <= 0:
         return []
     return timings[-upgrader_count:]
