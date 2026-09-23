@@ -1,7 +1,10 @@
-# Tycoon RNG : Refinery Optimizer 
+# Tycoon RNG : Refinery Optimizer
+
 TRRO is a tool developed to help you optimize your setup to maximize profit in the game Tycoon RNG: Refinery.
 It uses an asynchronous Genetic Algorithm to find the best value without much computing power and without having to check all 60 quadrillion combinations.
+
 ## Features
+
 - Random runs to avoid shallow bests
 - A comprehensive and easy way to pass in available buildings
 - An estimated value
@@ -9,13 +12,15 @@ It uses an asynchronous Genetic Algorithm to find the best value without much co
 - Future-proof with clear syntax and buildings interactions. Adding a building is done with a single line!
 
 ## Installation and use
-You can install this project as a PyPi package: 
+
+This is now available at a website! You can find it here:
+<https://eliegonzales.github.io/TycoonRNGOptimizer/>
+
+You can install this project as a PyPi package:
  ```python3 -m pip install rngoptimizer```
 
 Open your terminal in a directory with a text file containing your buildings as directed below.
 You can then pass in the flags `-p <path>` for the path to your text file if it isn't `available_buildings.txt`, `-d` for the dropper amount, `-u` for the upgrader amount and `-r` for the number of runs.
-
-
 
 1. Download the source code by clicking the green **Code** button on the top right and **Download ZIP**.
 2. Unzip the file.
@@ -39,52 +44,26 @@ You can then pass in the flags `-p <path>` for the path to your text file if it 
 
 ## Frequently Asked Questions
 
-<details>
-<summary><b>Is this safe?</b></summary>
-<br>
+### Is this safe?
 
 Yes. It does not read from any file other than available_buildings.txt and does not write to any file other than optimized_buildings.txt. This is a fully open-source project, and anyone with Python experience can confirm this program does what it says it does.
 
-</details>
-
-
-<details>
-<summary><b>Is this linked to my Roblox Account?</b></summary>
-<br>
+### Is this linked to my Roblox Account?
 
 No. It requires you to manually add in your own buildings by writing them down. It does not have access to your Roblox account, and requires no login.
 
-</details>
+### I can't open runme.py
 
+Make sure you have Python 3.14 installed. you can find it here: [Python Download](https://www.python.org/downloads/)
 
-<details>
-<summary><b>I can't open runme.py!</b></summary>
-<br>
-
-Make sure you have Python 3.14 installed. you can find it [here.](https://www.python.org/downloads/)
-
-</details>
-
-<details>
-<summary><b>&lt;Building&gt; isn't recognized!</b></summary>
-<br>
+### `<Building>` isn't recognized
 
 The building might've been added in a recent update. You can notify me on the TR:R Discord or DM me: **@Elie07**
 
-</details>
+### The factory found is worse than the one I have right now
 
-<details>
-<summary><b>The factory found is worse than the one I have right now!</b></summary>
-<br>
+The algorithm isn't perfect, and is by definition not very intelligent. It's basically a better trial-and-error. I'm working on upgrading the algorithm to be more performant.
 
-The algorithm isn't perfect, and is by definition not very intelligent. It's basically a better trial-and-error. I'm working on upgrading the algorithm to be more performant. 
-
-</details>
-
-<details>
-<summary><b>I built the recommended factory, but it doesn't perform the same!</b></summary>
-<br>
+### I built the recommended factory, but it doesn't perform the same
 
 I'm not affiliated with the TR:R developement team and have no way to check if my calculations are accurate. If you run into this issue, please send me your available buildings, the setup the algorithm gave you and what you're getting in game via discord: **@Elie07**
-
-</details>
