@@ -182,14 +182,22 @@ def _describe(candidate, value):
     if value == 0:
         value = "0"
     else:
-        suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"]
+        suffixes = ["", "K", "M", "B", "T",
+        "Qa", "Qi", "Sx", "Sp", "Oc",
+        "No", "Dc", "Ud", "Dd", "Td",
+        "Qad", "Qid", "Sxd", "Spd", "Ocd",
+        "Nod", "Vg", "Uvg", "Dvg", "Tvg",
+        "Qavg", "Qivg", "Sxvg", "Spvg", "Ocvg",
+        "Novg", "Tg", "Utg", "Dtg", "Ttg",
+        "Qatg", "Qitg", "Sxtg", "Sptg", "Octg",
+        "Notg", "Qag", "Uqag", "Dqag", "Tqag"]
         magnitude = int(math.floor(math.log10(abs(value)) / 3)) if value != 0 else 0
         
         if magnitude >= len(suffixes):
             value = f"{value:.{3}e}"
         else:
             scaled_value = value / (10 ** (magnitude * 3))
-            value = f"{scaled_value:.{3}f}{suffixes[magnitude]}"
+            value = f"{scaled_value:.{3}f} {suffixes[magnitude]}"
 
     return {
         "droppers": [
