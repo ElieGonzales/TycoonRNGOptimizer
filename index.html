@@ -6,6 +6,7 @@
     <title>RNG Optimizer</title>
 
     <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
 </head>
 <body>
@@ -14,10 +15,13 @@
 
     <div class="input-section" style="display: flex; flex-direction: column; gap: 20px; max-width: 300px;">
         
+        <h4 style="margin: 0;">Building Syntax:</h4>
+        <p style="margin: 0;">Rarity1 Rarity2 Rarity3 - Building Name</p>
+        <p style="margin-top: 0;">Example: op N - basic dropper</p>
+        
+        <hr>
+
         <div class="input-group" style="display: flex; flex-direction: column;">
-            <h4 style="margin: 0;">Building Syntax:</h4>
-            <p style="margin: 0;">Rarity1 Rarity2 Rarity3 - Building Name</p>
-            <p style="margin-top: 0;">Example: op N - basic dropper</p>
             <label for="available-buildings">Available buildings:</label>
             <input type="file" id="available-buildings" accept=".txt,text/plain" required>
             <label for="available-buildings-type" style="margin-top: 10px;">Or type them in:</label>
@@ -41,6 +45,8 @@
 
         <button id="run-button">Run Optimization</button>
     </div>
+
+    <hr>
 
     <div style="margin-top: 20px;">
         <h2>Optimized Factory:</h2>
