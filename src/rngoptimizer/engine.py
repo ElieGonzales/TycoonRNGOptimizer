@@ -107,7 +107,7 @@ def get_available_buildings(building_list):
                     else:
                         r = r.title()
                     rarities.append(r)
-                building_obj.rarity = rarity  
+                building_obj.rarity = " ".join(rarities)
                 if isinstance(building_obj, buildings.Dropper):
                     available_droppers.append(building_obj)
                 elif isinstance(building_obj, buildings.Upgrader):
