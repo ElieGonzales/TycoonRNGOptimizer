@@ -23,11 +23,11 @@ You can then pass in the flags `-p <path>` for the path to your text file if it 
 
    **RARITY1 RARITY2 RARITY3 - BUILDING NAME**
 
-   Capitalization is important. For example:
-   - **Negative Overpowered - Slime Duper** is correct
-   - **OP H - Ancient Ruins** is correct
-   - **Hyperspace Electric Dropper** is incorrect
-   - **negative magical tree** is incorrect
+   For example:
+   - **Negative Overpowered - slime duper** is correct
+   - **oP h - AnCieNt rUins** is correct
+   - **hyperspace Electric Dropper** is incorrect
+   - **n - magicaltree** is incorrect
 
    Comments can be written if the line starts with #.
    You can set a custom default dropper and upgrader count by typing @Dropper amount: x and @Upgrader amount: y at the start of the file.

@@ -7,9 +7,12 @@ async def process_input(event):
     document.getElementById("run-button").disabled = True
 
     file_input = document.getElementById("available-buildings")
-    #bruh
-    js_buffer = await file_input.files[0].arrayBuffer()
-    file_content = js_buffer.to_bytes().decode('utf-8')
+    if file_input.files.length == 0:
+        file_content = document.getElementById("available-buildings-type").value
+    else:
+        #bruh
+        js_buffer = await file_input.files[0].arrayBuffer()
+        file_content = js_buffer.to_bytes().decode('utf-8')
 
     runs = document.getElementById("runs").value
     upgrader_count = document.getElementById("upgrader-count").value 

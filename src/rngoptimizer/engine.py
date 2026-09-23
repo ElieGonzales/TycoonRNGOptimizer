@@ -59,13 +59,13 @@ def calculate_factory(droppers, upgraders, processor, verbose=False, super_verbo
 #Returns the building object based on the name of the building
 def get_building_by_name(name):
     for dropper in definitions.Droppers:
-        if dropper.name == name:
+        if dropper.name.lower() == name.lower().strip():
             return dropper
     for upgrader in definitions.Upgraders:
-        if upgrader.name == name:
+        if upgrader.name.lower() == name.lower().strip():
             return upgrader
     for processor in definitions.Processors:
-        if processor.name == name:
+        if processor.name.lower() == name.lower().strip():
             return processor
     return None
 
@@ -99,6 +99,14 @@ def get_available_buildings(building_list):
             building_obj = get_building_by_name(name)
             if building_obj:
                 building_obj = copy.deepcopy(building_obj)
+                rarities = []
+                for r in rarity.split(" "):
+                    r = r.strip()
+                    if len(r) < 3:
+                        r = r.upper()
+                    else:
+                        r = r.title()
+                    rarities.append(r)
                 building_obj.rarity = rarity  
                 if isinstance(building_obj, buildings.Dropper):
                     available_droppers.append(building_obj)
