@@ -169,6 +169,8 @@ class Upgrader:
         #Apply bonuses to the item's value if the item has the corresponding effect
         for bonus in self.bonuses:
             if bonus in item.effects:
+                if super_verbose:
+                    print(f"Applying bonus for effect {bonus}: {self.bonuses[bonus]}")
                 item.value *= self.bonuses[bonus]
 
 

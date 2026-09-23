@@ -2,9 +2,15 @@ import asyncio
 import copy
 import os
 import random
-from concurrent.futures import ProcessPoolExecutor
-from . import buildings
-from . import definitions
+from concurrent.futures import ThreadPoolExecutor
+try:
+    from . import buildings
+except ImportError:
+    import buildings
+try:
+    from . import definitions
+except ImportError:
+    import definitions
 import sys
 import traceback
 
@@ -173,7 +179,7 @@ def _describe(candidate, value):
         "value": value,
     }
 
-async def optimize_buildings(
+async def optimize_buildings_os(
     droppers,
     upgraders,
     processors,
@@ -215,7 +221,7 @@ async def optimize_buildings(
     score_cache = {}
 
     loop = asyncio.get_running_loop()
-    with ProcessPoolExecutor() as process_executor:
+    with ThreadPoolExecutor() as process_executor:
         for generation in range(1, generations + 1):
             uncached_candidates = list(dict.fromkeys(population))
             uncached_candidates = [
@@ -278,13 +284,139 @@ async def optimize_buildings(
 
     return best_candidate, best_value
 
+async def optimize_buildings_wasm(
+    droppers,
+    upgraders,
+    processors,
+    dropper_count=None,
+    upgrader_count=None,
+    generations=100,
+    population_size=64,
+    elite_size=8,
+    seed=None,
+    random_fraction=0.1,
+    progress_every=0,
+    stagnation_patience=10,
+    max_random_fraction=0.5
+):
+    if not droppers or not upgraders or not processors:
+        raise ValueError("at least one dropper, upgrader, and processor is required")
+    if dropper_count is None:
+        dropper_count = len(droppers)
+    if upgrader_count is None:
+        upgrader_count = len(upgraders)
+    if not 0 <= random_fraction <= 1:
+        raise ValueError("random_fraction must be between 0 and 1")
+    if stagnation_patience < 1:
+        raise ValueError("stagnation_patience must be positive")
+    if not random_fraction <= max_random_fraction <= 1:
+        raise ValueError("max_random_fraction must be between random_fraction and 1")
+    if seed is not None:
+        random.seed(seed)
+
+    population = [
+        _random_candidate(droppers, upgraders, processors, dropper_count, upgrader_count)
+        for _ in range(max(population_size, elite_size))
+    ]
+    best_candidate = None
+    best_value = float("-inf")
+    stagnant_generations = 0
+    immigrant_fraction = random_fraction
+    score_cache = {}
+
+    loop = asyncio.get_running_loop()
+    max_workers = min(4, os.cpu_count() or 1)
+    with ThreadPoolExecutor(max_workers=max_workers) as thread_executor:
+        for generation in range(1, generations + 1):
+            uncached_candidates = [
+                candidate
+                for candidate in dict.fromkeys(population)
+                if candidate not in score_cache
+            ]
+            if uncached_candidates:
+                worker_count = min(len(uncached_candidates), max_workers)
+                chunk_size = max(
+                    1,
+                    (len(uncached_candidates) + worker_count - 1)
+                    // worker_count,
+                )
+                candidate_batches = [
+                    uncached_candidates[start:start + chunk_size]
+                    for start in range(0, len(uncached_candidates), chunk_size)
+                ]
+                tasks = [
+                    loop.run_in_executor(thread_executor, _evaluate_batch, batch)
+                    for batch in candidate_batches
+                ]
+                score_batches = await asyncio.gather(*tasks)
+                uncached_scores = [
+                    score for batch in score_batches for score in batch
+                ]
+                score_cache.update(zip(uncached_candidates, uncached_scores))
+
+            scores = [score_cache[candidate] for candidate in population]
+            ranked = sorted(
+                zip(scores, population),
+                key=lambda result: result[0],
+                reverse=True,
+            )
+            if ranked[0][0] > best_value:
+                best_value, best_candidate = ranked[0]
+                stagnant_generations = 0
+                immigrant_fraction = random_fraction
+            else:
+                stagnant_generations += 1
+                if stagnant_generations >= stagnation_patience:
+                    immigrant_fraction = min(
+                        max_random_fraction,
+                        immigrant_fraction + 0.1,
+                    )
+
+            if progress_every and (
+                generation % progress_every == 0 or generation == 1
+            ):
+                print(
+                    f"Generation {generation}: best value = {best_value} "
+                    f"(immigrants: {immigrant_fraction:.0%})"
+                )
+                print(_describe(best_candidate, best_value))
+
+            elites = [
+                candidate
+                for _, candidate in ranked[:max(1, elite_size)]
+            ]
+            population = elites[:]
+            while len(population) < population_size:
+                if random.random() < immigrant_fraction:
+                    population.append(
+                        _random_candidate(
+                            droppers,
+                            upgraders,
+                            processors,
+                            dropper_count,
+                            upgrader_count,
+                        )
+                    )
+                else:
+                    parent = random.choice(elites)
+                    population.append(
+                        _mutate(parent, droppers, upgraders, processors)
+                    )
+
+            await asyncio.sleep(0)
+
+    return best_candidate, best_value
+
 #----------//-----------
 
 
 #Runs the optimization process with the given parameters and returns the best result
-def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10, verify_final_run=True):
-    with open(path, "r") as f:
-        building_list = f.read()
+def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10, verify_final_run=True, web=False):
+    if not web:
+        with open(path, "r") as f:
+            building_list = f.read()
+    else:
+        building_list = path
     droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
     if not droppers or not upgraders or not processors:
         raise ValueError(
@@ -299,9 +431,10 @@ def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10
 
     best_result = None
     stagnant_runs = 0
+    optimizer = optimize_buildings_wasm if web else optimize_buildings_os
     for run_number in range(1, runs + 1):
         best_candidate, value = asyncio.run(
-            optimize_buildings(
+            optimizer(
                 droppers,
                 upgraders,
                 processors,
@@ -312,6 +445,7 @@ def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10
                 elite_size=8,
                 random_fraction=0.1,
                 progress_every=0,
+                stagnation_patience=run_stagnation_patience,
             )
         )
         if best_result is None or value > best_result["value"]:

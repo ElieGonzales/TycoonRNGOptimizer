@@ -1,7 +1,7 @@
 try:
 	from . import buildings
 except ImportError:
-	import rngoptimizer.buildings as buildings
+	import buildings
 Droppers = []
 Upgraders = []
 Processors = []

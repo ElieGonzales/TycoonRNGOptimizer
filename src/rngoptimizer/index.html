@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNG Optimizer</title>
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
+</head>
+<body>
+
+    <h1>Tycoon RNG: Refinery Optimizer</h1>
+
+    <div class="input-section" style="display: flex; flex-direction: column; gap: 20px; max-width: 300px;">
+        
+        <div class="input-group" style="display: flex; flex-direction: column;">
+            <label for="available-buildings">Available buildings:</label>
+            <input type="file" id="available-buildings" accept=".txt,text/plain" required>
+        </div>
+
+        <div class="input-group" style="display: flex; flex-direction: column;">
+            <label for="dropper-count">Dropper count:</label>
+            <input type="number" id="dropper-count" placeholder="Enter dropper count">
+        </div>
+
+        <div class="input-group" style="display: flex; flex-direction: column;">
+            <label for="upgrader-count">Upgrader count:</label>
+            <input type="number" id="upgrader-count" placeholder="Enter upgrader count">
+        </div>
+
+        <div class="input-group" style="display: flex; flex-direction: column;">
+            <label for="runs">Runs (default 5):</label>
+            <input type="number" id="runs" placeholder="Enter number of runs">
+        </div>
+
+        <button id="run-button">Run Optimization</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h2>Optimized Factory:</h2>
+        <h3>$/sec:</h3>
+        <p id="value">...</p>
+        <h3>Droppers:</h3>
+        <p id="droppers">...</p>
+        <h3>Upgraders:</h3>
+        <p id="upgraders">...</p>
+        <h3>Processor:</h3>
+        <p id="processor">...</p>
+    </div>
+
+    <!-- ⚠️ LINK TO YOUR EXTERNAL PYTHON FILE HERE -->
+    <script type="py" src="./web.py"
+    config='{
+    "files": {
+      "./engine.py": "./engine.py",
+        "./definitions.py": "./definitions.py",
+        "./buildings.py": "./buildings.py"
+    }
+  }'></script>
+
+</body>
+</html>
