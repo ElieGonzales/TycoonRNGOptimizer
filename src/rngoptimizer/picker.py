@@ -91,7 +91,7 @@ def init():
             row.appendChild(button)
 
     rarities = list(buildings.Rarities.keys())
-    rarities_verbose = rarities[1:len(rarities)//2]
+    rarities_verbose = rarities[1:len(rarities)+1//2]
     for rarity in rarities_verbose:
         button = document.createElement("button")
         button.innerText = rarity
