@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RNG Optimizer</title>
+    <title>TRNG:R Optimizer</title>
 
     <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
 </head>
-<body>
-
+<body style="background-image: url('about:blank');background-size: contain; background-repeat: no-repeat;min-height: 100vh; margin: 0;">
+    
+    <div style="display: flex; justify-content: flex-end;">
+        <button id="cat">Cat</button>
+    </div>
     <h1>Tycoon RNG: Refinery Optimizer</h1>
+    <p>Contact @Elie07 on discord if you have any questions or issues.</p>
 
     
     <div class="input-section" style="display: flex; flex-direction: column; gap: 20px; max-width: 340px;">
@@ -61,6 +65,22 @@
         <h3>Processor:</h3>
         <p id="processor">...</p>
     </div>
+
+    <script>
+        const images = [
+            'https://media.discordapp.net/attachments/1512496858709102762/1552376950880731306/064CDC86-7D90-438B-ADA9-F4B855F109B2.jpg?ex=6ab56332&is=6ab411b2&hm=ea627d2cb01c38bf54736aad931b36bf2c5e8f6d8ce008214c7499065154d6ee&=&format=webp&width=960&height=1280',
+            'https://media.discordapp.net/attachments/1512496858709102762/1552375987499442317/IMG_2600.jpg?ex=6ab5624d&is=6ab410cd&hm=fa7c57ea00b3422a5e345d28c6e5f9a48e3b64ad735d8c2c806c1edb8118daea&=&format=webp&width=959&height=1280',
+            'https://media.discordapp.net/attachments/1512496858709102762/1552375988980162732/IMG_2577.jpg?ex=6ab5624d&is=6ab410cd&hm=4fb2508b274d26a8e19c3de526c50f09d9c33c99e39d47f9a464c59df75a5236&=&format=webp&width=1536&height=1244',
+        ];
+        let currentIndex = 0;
+        const button = document.getElementById('cat');
+
+        button.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+        });
+    </script>
+
 
     <script type="py" src="./src/rngoptimizer/web.py"
     config='{

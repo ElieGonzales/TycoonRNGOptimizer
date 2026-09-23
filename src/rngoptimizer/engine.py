@@ -117,9 +117,9 @@ def get_available_buildings(building_list, web=False):
                     available_processors.append(building_obj)
             elif not building.startswith("@"):
                 if not web:
-                    print(f"Warning: Building '{name}' not found in definitions.")
+                    print(f"Warning: Building '{name.title()}' not found in definitions.")
                 else:
-                    raise ValueError(f"Building '{name}' not found in definitions.")
+                    raise ValueError(f"Building '{name.title()}' not found in definitions.")
     return available_droppers, available_upgraders, available_processors, dropper_count, upgrader_count
 
 
