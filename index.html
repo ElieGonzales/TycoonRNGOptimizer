@@ -6,26 +6,22 @@
     <title>TRNG:R Optimizer</title>
 
     <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
 </head>
-<body style="background-image: url('about:blank');background-size: contain; background-repeat: no-repeat;min-height: 100vh; margin: 0;">
+<body style="background-image: url('about:blank');background-size: contain; background-repeat: no-repeat; background-position: center;">
     
     <div style="display: flex; justify-content: flex-end;">
         <button id="cat">Cat</button>
     </div>
     <h1>Tycoon RNG: Refinery Optimizer</h1>
     <p>Contact @Elie07 on discord if you have any questions or issues.</p>
+    <a href="picker.html">Pick your buildings and generate a .txt file</a>
 
-    
-    <div class="input-section" style="display: flex; flex-direction: column; gap: 20px; max-width: 340px;">
-        
-        <h4 style="margin: 0;">Building Syntax:</h4>
-        <p style="margin: 0;">Rarity1 Rarity2 Rarity3 - Building Name</p>
-        <p style="margin-top: 0;">Example: op N - basic dropper</p>
-        
-        <hr>
-        
+
+    <hr>
+
+    <div class="input-section" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">    
         <div class="input-group" style="display: flex; flex-direction: column;">
             <label for="available-buildings">Available buildings:</label>
             <input type="file" id="available-buildings" accept=".txt,text/plain" required>

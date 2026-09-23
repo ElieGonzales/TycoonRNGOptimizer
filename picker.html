@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tycoon RNG: Refinery Building Picker</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.7.3/core.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <script type="module" src="https://pyscript.net/releases/2026.7.3/core.js"></script>
+    <style>
+        body { display: block; width: 100%; max-width: none; margin: 0; padding: 1rem 2rem; box-sizing: border-box; }
+        .picker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .button-column { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+        .building-button, .rarity-button { margin: 0; width: 100%; min-width: 0; overflow-wrap: anywhere; }
+        button.selected { outline: 2px solid var(--selection); }
+    </style>
+</head>
+<body>
+    <div class="picker-grid">
+        <section class="picker-section">
+            <h2>Droppers</h2>
+            <div id="droppers-row" class="button-column"></div>
+        </section>
+        <section class="picker-section">
+            <h2>Upgraders</h2>
+            <div id="upgraders-row" class="button-column"></div>
+        </section>
+        <section class="picker-section">
+            <h2>Processors</h2>
+            <div id="processors-row" class="button-column"></div>
+        </section>
+        <section class="picker-section">
+            <h2>Rarities</h2>
+            <div id="rarities-row" class="button-column"></div>
+            <div class="controls">
+                <label for="amount">Amount
+                    <input id="amount" type="number" min="1" value="1">
+                </label>
+                <button id="add-button" type="button">Add</button>
+                <button id="export-button" type="button">Export .txt</button>
+            </div>
+            <section class="preview-section">
+                <h2>Preview</h2>
+                <pre id="preview">Loading buildings...</pre>
+                <p id="error-message" role="alert"></p>
+            </section>
+            <a href="index.html">Back to Optimizer</a>
+
+        </section>
+    </div>
+    <script type="py" src="./src/rngoptimizer/picker.py"
+    config='{
+    "files": {
+            "./src/rngoptimizer/engine.py": "./engine.py",
+            "./src/rngoptimizer/definitions.py": "./definitions.py",
+            "./src/rngoptimizer/buildings.py": "./buildings.py"
+    }
+  }'></script>
+
+</body>
+</html>
+

@@ -5,7 +5,6 @@ except ImportError:
 Droppers = []
 Upgraders = []
 Processors = []
-
 Droppers.append(buildings.Dropper(name="Basic Dropper", eff=1))
 Droppers.append(buildings.Dropper(name="Advanced Dropper", eff=2))
 Droppers.append(buildings.Dropper(name="Poisoned Dripper", eff=3, bonus={"Acid": 2}, vulnerabilities=["Wet"]))

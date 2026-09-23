@@ -1,6 +1,6 @@
 Bonuses = ["Fire", "Wet", "Aired", "Magnetic", "Ancient", "Slimed", "Acid", "Nuclear", "Fueled", "Nebula"]
 Destroy_timers = {"Fire": 7.5, "Acid":8.0, "Nuclear":7.5}
-Rarities = {"Standard": 1, "Overpowered": 2, "Negative": 3.5, "Hyperspace": 6, "":1, "OP": 2, "N": 3.5, "H": 6}
+Rarities = {"Standard": 1, "Overpowered": 2, "Negative": 3.5, "Hyperspace": 6, "OP": 2, "N": 3.5, "H": 6}
 
 ##TODO: Instead of handling tags, vulns, and raritites as strings, handle them as ints for faster runtime
 
