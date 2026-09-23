@@ -70,7 +70,7 @@ def get_building_by_name(name):
     return None
 
 #Gets buildings from raw text
-def get_available_buildings(building_list):
+def get_available_buildings(building_list, web=False):
     #Words before - are the rarities
     #Words after - is the building name
     #\ns are the building list
@@ -115,7 +115,10 @@ def get_available_buildings(building_list):
                 elif isinstance(building_obj, buildings.Processor):
                     available_processors.append(building_obj)
             elif not building.startswith("@"):
-                print(f"Warning: Building '{name}' not found in definitions.")
+                if not web:
+                    print(f"Warning: Building '{name}' not found in definitions.")
+                else:
+                    raise ValueError(f"Building '{name}' not found in definitions.")
     return available_droppers, available_upgraders, available_processors, dropper_count, upgrader_count
 
 
@@ -425,7 +428,7 @@ def run(path, dropper_count, upgrader_count, runs=10, run_stagnation_patience=10
             building_list = f.read()
     else:
         building_list = path
-    droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list)
+    droppers, upgraders, processors, dropper_count_from_txt, upgrader_count_from_txt = get_available_buildings(building_list, web=web)
     if not droppers or not upgraders or not processors:
         raise ValueError(
             "available buildings must contain at least one dropper, upgrader, and processor"
