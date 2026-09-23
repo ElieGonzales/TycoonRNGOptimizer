@@ -11,9 +11,16 @@ async def process_input(event):
     js_buffer = await file_input.files[0].arrayBuffer()
     file_content = js_buffer.to_bytes().decode('utf-8')
 
-    runs = document.getElementById("runs").value or 0
-    upgrader_count = document.getElementById("upgrader-count").value or 0
-    dropper_count = document.getElementById("dropper-count").value or 0
+    runs = document.getElementById("runs").value
+    upgrader_count = document.getElementById("upgrader-count").value 
+    dropper_count = document.getElementById("dropper-count").value
+
+    if runs == "":
+        runs = 5
+    if upgrader_count == "":
+        upgrader_count = 0
+    if dropper_count == "":
+        dropper_count = 0
 
     print(f"Input values: {file_content}, {dropper_count}, {upgrader_count}, {runs}")
 
